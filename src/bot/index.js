@@ -7,15 +7,49 @@ const telegraf_1 = require("telegraf");
 const config_1 = __importDefault(require("../config"));
 const commands_1 = require("./commands");
 const bot = new telegraf_1.Telegraf(config_1.default.telegram.botToken);
-// Session middleware
-bot.use((0, telegraf_1.session)());
+// Session middleware with default state
+bot.use((0, telegraf_1.session)({
+  defaultSession: () => ({
+    loginState: undefined,
+    email: undefined,
+    token: undefined,
+    organizationId: undefined,
+    wallets: undefined,
+    transferState: undefined
+  })
+}));
 // Register commands
 (0, commands_1.registerCommands)(bot);
 // Start handler
-bot.start((ctx) => {
-    ctx.reply(`Welcome to Copperx Payout Bot! 🚀\n\n` +
-        `This bot allows you to manage your Copperx account directly from Telegram.\n\n` +
-        `Please use /login to get started, or /help to see all available commands.`);
+bot.start(async (ctx) => {
+    console.log('Start command received');
+    try {
+        console.log('Sending welcome message...');
+        await ctx.reply(
+            `Welcome to Copperx Payout Bot! 🚀\n\n` +
+            `This bot allows you to manage your Copperx account directly from Telegram.\n\n` +
+            `Please use /login to get started, or /help to see all available commands.`,
+            {
+                parse_mode: 'Markdown',
+                reply_markup: {
+                    keyboard: [
+                        ['💰 Balance', '📤 Send', '🏦 Withdraw'],
+                        ['📋 History', '👤 Profile', '❓ Help']
+                    ],
+                    resize_keyboard: true
+                }
+            }
+        );
+        console.log('Welcome message sent successfully');
+    } catch (error) {
+        console.error('Error in start command:', error);
+        // Try sending a simpler message if the first one fails
+        try {
+            await ctx.reply('Welcome to Copperx Payout Bot! Please use /login to get started.');
+        } catch (retryError) {
+            console.error('Failed to send simple message:', retryError);
+        }
+    }
 });
 // Help command
 bot.help((ctx) => {

@@ -1,0 +1,9 @@
+# Telegram
+BOT_TOKEN=8012423193:AAFYseeHTMxBzf72Vt-0el9HEBsuOkEpjAQ
+
+# Copperx API
+API_BASE_URL=https://income-api.copperx.io
+
+# Pusher
+PUSHER_KEY=89356a3c74ba611abac3
+PUSHER_CLUSTER=us3
