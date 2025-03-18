@@ -86,12 +86,18 @@ const registerCommands = (bot) => {
             if (result.success && ((_a = result.data) === null || _a === void 0 ? void 0 : _a.token)) {
                 ctx.session.token = result.data.token;
                 // Get user profile
+                if (!ctx.session.token) {
+                    yield ctx.reply('Session error. Please try again with /login');
+                    return;
+                }
                 const profileResult = yield authService.getUserProfile(ctx.session.token);
                 if (profileResult.success) {
                     ctx.session.organizationId = (_b = profileResult.data.defaultOrganization) === null || _b === void 0 ? void 0 : _b.id;
                     // Setup notifications
                     if (ctx.session.organizationId) {
-                        (0, notification_1.setupPusherNotifications)(ctx.session.token, ctx.session.organizationId, ctx.chat.id);
+                        if (ctx.session.token) {
+                            (0, notification_1.setupPusherNotifications)(ctx.session.token, ctx.session.organizationId, ctx.chat.id);
+                        }
                     }
                     yield ctx.reply(`✅ Login successful!\n\nWelcome to Copperx Payout Bot. Use /help to see available commands.`, telegraf_1.Markup.keyboard([
                         ['💰 Balance', '📤 Send', '🏦 Withdraw'],
@@ -152,7 +158,15 @@ const registerCommands = (bot) => {
     }));
     // Help command
     bot.hears('❓ Help', (ctx) => __awaiter(void 0, void 0, void 0, function* () {
-        yield ctx.help();
+        yield ctx.reply(`Copperx Payout Bot Commands:\n\n` +
+            `/login - Authenticate with your Copperx account\n` +
+            `/balance - View your wallet balances\n` +
+            `/send - Send funds to an email or wallet\n` +
+            `/withdraw - Withdraw funds to bank account\n` +
+            `/history - View recent transactions\n` +
+            `/profile - View your account profile\n` +
+            `/support - Get help from Copperx support\n\n` +
+            `Need more help? Visit: https://t.me/copperxcommunity/2183`);
     }));
     // Handle action buttons
     bot.action(/send_type:(.+)/, (ctx) => __awaiter(void 0, void 0, void 0, function* () {
